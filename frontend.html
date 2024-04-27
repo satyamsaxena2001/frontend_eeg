@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Emotion Predictor</title>
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-blue-900 text-white h-screen flex flex-col justify-center items-center">
+    <h1 class="text-4xl font-bold mb-8">EEG Speech Emotion Recognition</h1>
+    <form id="uploadForm" class="bg-white p-8 rounded-lg shadow-md mb-8">
+        <input type="file" id="fileInput" accept=".xlsx" class="mb-4 p-2 border border-gray-300 rounded-lg">
+        <button type="button" onclick="predictEmotion()" class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300">Predict Emotion</button>
+    </form>
+    <div id="result" class="mb-8"></div>
+    <a href="https://github.com/satyamsaxena2001/eeg-predictor" target="_blank" class="flex items-center text-blue-300 hover:text-blue-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.477 0 10c0 4.419 2.865 8.17 6.839 9.491.5.091.682-.217.682-.482 0-.237-.009-.866-.014-1.701-2.782.604-3.37-1.338-3.37-1.338-.454-1.151-1.107-1.459-1.107-1.459-.905-.618.069-.605.069-.605 1.001.071 1.527 1.027 1.527 1.027.89 1.528 2.337 1.087 2.905.831.091-.643.349-1.086.635-1.338-2.22-.252-4.555-1.104-4.555-4.918 0-1.086.387-1.977 1.025-2.676-.103-.253-.446-1.268.097-2.642 0 0 .84-.268 2.75 1.023a9.57 9.57 0 012.498-.338c.85.006 1.705.114 2.502.338 1.909-1.29 2.747-1.023 2.747-1.023.546 1.374.203 2.389.1 2.642.639.699 1.023 1.59 1.023 2.676 0 3.822-2.338 4.663-4.567 4.91.359.307.679.915.679 1.849 0 1.335-.012 2.415-.012 2.744 0 .267.18.579.688.48C17.141 18.167 20 14.418 20 10c0-5.523-4.477-10-10-10z" clip-rule="evenodd" />
+        </svg>
+        Backend Repository
+    </a>
+
+    <script>
+        function predictEmotion() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Please select a file.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('https://eeg-emotion-predictor-thesis-c1f519ba5c52.herokuapp.com/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayResult(data.predictions.slice(1)); // Ignoring the first prediction
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+
+        function displayResult(predictions) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            const resultText = document.createElement('p');
+            resultText.textContent = 'Predictions:';
+            resultText.classList.add('font-bold');
+            resultDiv.appendChild(resultText);
+
+            const list = document.createElement('ul');
+            list.classList.add('list-disc', 'pl-6');
+            predictions.forEach(prediction => {
+                const listItem = document.createElement('li');
+                listItem.textContent = prediction;
+                list.appendChild(listItem);
+            });
+
+            resultDiv.appendChild(list);
+        }
+    </script>
+</body>
+</html>
